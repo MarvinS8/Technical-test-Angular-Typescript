@@ -1,0 +1,23 @@
+<h1>Formulario de Contacto </h1>
+<form [formGroup]="formularioRegistro" (ngSubmit)="enviarRegistro()">
+  <label for="nombre">Nombre:</label>
+  <input id="nombre" formControlName="nombre" />
+  @if (formularioRegistro.get('nombre')?.invalid && formularioRegistro.get('nombre')?.touched) {
+    <div class="error">El nombre es requerido.</div>
+  }
+  <label for="email">Email:</label>
+  <input id="email" formControlName="email" />
+  @if (formularioRegistro.get('email')?.invalid && formularioRegistro.get('email')?.touched) {
+    <div class="error">El email es requerido y debe ser válido.</div>
+  }
+  <label for="phone">Phone:</label>
+  <input id="phone" formControlName="phone" />
+  @if (formularioRegistro.get('phone')?.invalid && formularioRegistro.get('phone')?.touched) {
+    <div class="error">El número de teléfono es requerido.</div>
+  }
+  <button type="submit" [disabled]="formularioRegistro.invalid">Registrar</button>
+  @if (enviado) {
+    <p>¡Registro exitoso!</p>
+  }
+</form>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
