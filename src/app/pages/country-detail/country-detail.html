@@ -1,0 +1,103 @@
+<div class="container py-4">
+
+  <!-- Back button -->
+  <a routerLink="/countries" class="btn btn-outline-secondary mb-4">
+    &larr; Back to Countries
+  </a>
+
+  <!-- Loading -->
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="text-muted mt-3">Loading country data...</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  }
+
+  <!-- Country data -->
+  @if (!cargando && !error && pais) {
+    <div class="row">
+      <!-- Left column: Info -->
+      <div class="col-lg-5 mb-4">
+        <!-- Flag + name -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body text-center p-4">
+            <img
+              [src]="pais.flags.png"
+              [alt]="pais.flags.alt || pais.name.common"
+              class="flag-img mb-3"
+            />
+            <h2 class="fw-bold mb-1">{{ pais.name.common }}</h2>
+            <p class="text-muted mb-0 fst-italic">{{ pais.name.official }}</p>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Country Info</h5>
+            <table class="table table-borderless table-sm mb-0">
+              <tbody>
+                <tr>
+                  <td class="text-muted fw-semibold" style="width: 40%">Capital</td>
+                  <td>{{ pais.capital && pais.capital.length > 0 ? pais.capital[0] : '-' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted fw-semibold">Region</td>
+                  <td>{{ pais.region }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted fw-semibold">Subregion</td>
+                  <td>{{ pais.subregion || '-' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted fw-semibold">Population</td>
+                  <td>{{ formatPopulation(pais.population) }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted fw-semibold">Area</td>
+                  <td>{{ pais.area ? formatPopulation(pais.area) + ' km²' : '-' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted fw-semibold">Currencies</td>
+                  <td>{{ getCurrencies() }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted fw-semibold">Languages</td>
+                  <td>{{ getLanguages() }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted fw-semibold">Timezone</td>
+                  <td>{{ pais.timezones && pais.timezones.length > 0 ? pais.timezones[0] : '-' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column: Map -->
+      <div class="col-lg-7 mb-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-0">
+            <div id="map" class="map-container rounded"></div>
+          </div>
+        </div>
+
+        <!-- Coordinates badge -->
+        @if (pais.latlng && pais.latlng.length >= 2) {
+          <div class="mt-2 text-muted small text-center">
+            Coordinates: {{ pais.latlng[0].toFixed(2) }}&deg;N, {{ pais.latlng[1].toFixed(2) }}&deg;E
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+</div>

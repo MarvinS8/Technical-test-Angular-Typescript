@@ -1,0 +1,17 @@
+.flag-img {
+  width: 160px;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.map-container {
+  height: 450px;
+  width: 100%;
+}
+
+.table td {
+  padding: 0.6rem 0.5rem;
+  font-size: 0.9rem;
+}
