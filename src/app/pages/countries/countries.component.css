@@ -19,3 +19,7 @@
 .table td {
   font-size: 0.9rem;
 }
+
+.fila-pais:hover {
+  background-color: #f0f4ff !important;
+}

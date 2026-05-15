@@ -67,12 +67,16 @@
               <th scope="col">Region</th>
               <th scope="col">Population</th>
               <th scope="col">Currency</th>
-              <th scope="col" class="text-center">Details</th>
             </tr>
           </thead>
           <tbody>
             @for (pais of paisesPaginados; track pais.cca2) {
-              <tr>
+              <tr
+                class="fila-pais"
+                [routerLink]="['/countries', pais.cca2]"
+                style="cursor: pointer;"
+                [title]="'View details for ' + pais.name.common"
+              >
                 <td>
                   <img
                     [src]="pais.flags.png"
@@ -89,14 +93,6 @@
                 </td>
                 <td class="text-muted">{{ formatPopulation(pais.population) }}</td>
                 <td class="text-muted">{{ getCurrencies(pais) }}</td>
-                <td class="text-center">
-                  <a
-                    [routerLink]="['/countries', pais.cca2]"
-                    class="btn btn-sm btn-outline-primary"
-                  >
-                    View
-                  </a>
-                </td>
               </tr>
             }
           </tbody>

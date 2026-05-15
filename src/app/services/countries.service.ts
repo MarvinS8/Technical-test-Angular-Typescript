@@ -8,7 +8,7 @@ import { Country } from '../models/country.model';
 })
 export class CountriesService {
   // URL base de la API de países
-  private baseUrl = 'https://api4devs.infinitec.com/v3.1';
+  private baseUrl = 'https://restcountries.com/v3.1';
 
   constructor(private http: HttpClient) {}
 
