@@ -1,6 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { isPlatformBrowser } from '@angular/common';
 import { CountriesService } from '../../services/countries.service';
 import { Country } from '../../models/country.model';
 
@@ -11,23 +11,32 @@ import { Country } from '../../models/country.model';
   templateUrl: './country-detail.component.html',
   styleUrl: './country-detail.component.css'
 })
-export class CountryDetailComponent implements OnInit {
+export class CountryDetailComponent implements OnInit, OnDestroy {
   pais: Country | null = null;
-  cargando: boolean = true;
-  error: string = '';
+  cargando = true;
+  error = '';
+  esBrowser: boolean;
 
+  private mapa: any = null;
+  private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
-  private sanitizer = inject(DomSanitizer);
 
   constructor(
     private route: ActivatedRoute,
     private countriesService: CountriesService
-  ) {}
+  ) {
+    this.esBrowser = isPlatformBrowser(this.platformId);
+  }
 
   ngOnInit(): void {
     const code = this.route.snapshot.paramMap.get('code');
-    if (code) {
-      this.cargarPais(code);
+    if (code) this.cargarPais(code);
+  }
+
+  ngOnDestroy(): void {
+    if (this.mapa) {
+      this.mapa.remove();
+      this.mapa = null;
     }
   }
 
@@ -40,9 +49,12 @@ export class CountryDetailComponent implements OnInit {
         this.pais = data[0];
         this.cargando = false;
         this.cdr.detectChanges();
+
+        if (this.esBrowser && this.pais?.latlng?.length >= 2) {
+          setTimeout(() => this.iniciarMapa(), 0);
+        }
       },
-      error: (err) => {
-        console.error('Error al cargar el país:', err);
+      error: () => {
         this.error = 'Could not load country data. Please go back and try again.';
         this.cargando = false;
         this.cdr.detectChanges();
@@ -50,14 +62,37 @@ export class CountryDetailComponent implements OnInit {
     });
   }
 
-  get mapUrl(): SafeResourceUrl {
-    if (!this.pais?.latlng || this.pais.latlng.length < 2) {
-      return this.sanitizer.bypassSecurityTrustResourceUrl('about:blank');
-    }
+  private async iniciarMapa(): Promise<void> {
+    if (!this.pais?.latlng || this.pais.latlng.length < 2) return;
+
+    const L = await import('leaflet');
     const lat = this.pais.latlng[0];
     const lng = this.pais.latlng[1];
-    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 20},${lat - 15},${lng + 20},${lat + 15}&layer=mapnik&marker=${lat},${lng}`;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+
+    if (this.mapa) {
+      this.mapa.remove();
+      this.mapa = null;
+    }
+
+    // Fix default marker icons broken by bundlers
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    });
+
+    this.mapa = L.map('country-map').setView([lat, lng], 5);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(this.mapa);
+
+    L.marker([lat, lng])
+      .addTo(this.mapa)
+      .bindPopup(`<strong>${this.pais.name.common}</strong>`)
+      .openPopup();
   }
 
   getCurrencies(): string {
