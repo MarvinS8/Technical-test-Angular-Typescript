@@ -1,0 +1,9 @@
+<h2>API Data Countries</h2>
+@if(cargando){
+  <p>Cargando datos...</p>
+}
+<ul>
+  @for( country of countries; track country.name){
+    ><li>{{ country.id}}-{{ country.common }}-{{ country.name }}-{{ country.capital }}-{{ country.currencies}}</li>
+  }
+</ul>
