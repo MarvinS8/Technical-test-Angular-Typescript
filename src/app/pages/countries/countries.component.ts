@@ -8,8 +8,8 @@ import { Country } from '../../models/country.model';
   selector: 'app-countries',
   standalone: true,
   imports: [RouterLink, FormsModule],
-  templateUrl: './countries.html',
-  styleUrl: './countries.css'
+  templateUrl: './countries.component.html',
+  styleUrl: './countries.component.css'
 })
 export class CountriesComponent implements OnInit {
   paises: Country[] = [];

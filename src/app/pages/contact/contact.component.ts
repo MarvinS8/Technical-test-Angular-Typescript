@@ -25,8 +25,8 @@ function noScriptValidator(control: AbstractControl): ValidationErrors | null {
   selector: 'app-contact',
   standalone: true,
   imports: [ReactiveFormsModule],
-  templateUrl: './contact.html',
-  styleUrl: './contact.css'
+  templateUrl: './contact.component.html',
+  styleUrl: './contact.component.css'
 })
 export class ContactComponent {
   formulario: FormGroup;

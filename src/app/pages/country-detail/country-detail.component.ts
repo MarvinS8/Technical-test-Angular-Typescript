@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, PLATFORM_ID, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { CountriesService } from '../../services/countries.service';
@@ -9,8 +9,8 @@ import type { Map } from 'leaflet';
   selector: 'app-country-detail',
   standalone: true,
   imports: [RouterLink],
-  templateUrl: './country-detail.html',
-  styleUrl: './country-detail.css'
+  templateUrl: './country-detail.component.html',
+  styleUrl: './country-detail.component.css'
 })
 export class CountryDetailComponent implements OnInit, OnDestroy {
   pais: Country | null = null;
@@ -22,7 +22,8 @@ export class CountryDetailComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private countriesService: CountriesService
+    private countriesService: CountriesService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -35,14 +36,16 @@ export class CountryDetailComponent implements OnInit, OnDestroy {
 
   cargarPais(code: string): void {
     this.cargando = true;
+    this.error = '';
+
     this.countriesService.getCountryByCode(code).subscribe({
       next: (data) => {
         this.pais = data[0];
         this.cargando = false;
-        // Pequeño delay para asegurarnos que el DOM ya está listo
-        setTimeout(() => {
-          this.iniciarMapa();
-        }, 100);
+        // Forzamos la detección de cambios para que Angular renderice
+        // el div del mapa antes de iniciar Leaflet
+        this.cdr.detectChanges();
+        this.iniciarMapa();
       },
       error: (err) => {
         console.error('Error al cargar el país:', err);
@@ -57,12 +60,18 @@ export class CountryDetailComponent implements OnInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
     if (!this.pais || !this.pais.latlng || this.pais.latlng.length < 2) return;
 
+    // Si ya hay un mapa iniciado, lo destruimos primero
+    if (this.mapa) {
+      this.mapa.remove();
+      this.mapa = undefined;
+    }
+
     const L = await import('leaflet');
 
     const lat = this.pais.latlng[0];
     const lng = this.pais.latlng[1];
 
-    // Fix para el problema de los iconos de Leaflet con bundlers
+    // Fix para el problema de los iconos de Leaflet con bundlers de Angular
     const DefaultIcon = L.icon({
       iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
       iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
