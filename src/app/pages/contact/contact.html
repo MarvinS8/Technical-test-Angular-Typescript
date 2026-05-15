@@ -1,0 +1,196 @@
+<div class="container py-5">
+  <div class="row">
+
+    <!-- Contact Info -->
+    <div class="col-lg-4 mb-4">
+      <h2 class="fw-bold mb-4">Contact Us</h2>
+      <p class="text-muted mb-4">
+        Have any questions? Feel free to reach out. We'll get back to you as soon as possible.
+      </p>
+
+      <div class="d-flex align-items-start mb-3">
+        <span class="contact-icon me-3">📍</span>
+        <div>
+          <p class="fw-semibold mb-0">Address</p>
+          <p class="text-muted mb-0">123 Tech Street, San Francisco, CA 94107</p>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-start mb-3">
+        <span class="contact-icon me-3">📞</span>
+        <div>
+          <p class="fw-semibold mb-0">Phone</p>
+          <p class="text-muted mb-0">+1 (555) 123-4567</p>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-start mb-3">
+        <span class="contact-icon me-3">✉️</span>
+        <div>
+          <p class="fw-semibold mb-0">Email</p>
+          <p class="text-muted mb-0">hello&#64;worldexplorer.com</p>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-start">
+        <span class="contact-icon me-3">🕐</span>
+        <div>
+          <p class="fw-semibold mb-0">Business Hours</p>
+          <p class="text-muted mb-0">Mon–Fri, 9:00 AM – 6:00 PM</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4 p-lg-5">
+          <h4 class="fw-bold mb-4">Send us a message</h4>
+
+          <!-- Success message -->
+          @if (exitoso) {
+            <div class="alert alert-success d-flex align-items-center" role="alert">
+              <span class="me-2">&#10004;</span>
+              <div>Your message was sent successfully! We'll get back to you soon.</div>
+            </div>
+          }
+
+          <!-- Error message (si hubiera un error del servidor) -->
+          @if (errorEnvio) {
+            <div class="alert alert-danger">{{ errorEnvio }}</div>
+          }
+
+          <form [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+
+            <!-- Name -->
+            <div class="mb-3">
+              <label for="nombre" class="form-label fw-semibold">
+                Full Name <span class="text-danger">*</span>
+              </label>
+              <input
+                id="nombre"
+                type="text"
+                class="form-control"
+                [class.is-invalid]="nombre?.invalid && nombre?.touched"
+                [class.is-valid]="nombre?.valid && nombre?.touched"
+                formControlName="nombre"
+                placeholder="John Doe"
+              />
+              @if (nombre?.touched && nombre?.errors) {
+                <div class="invalid-feedback">
+                  @if (nombre?.errors?.['required']) {
+                    Name is required.
+                  } @else if (nombre?.errors?.['minlength']) {
+                    Name must be at least 2 characters.
+                  } @else if (nombre?.errors?.['maxlength']) {
+                    Name cannot exceed 50 characters.
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+              <label for="email" class="form-label fw-semibold">
+                Email Address <span class="text-danger">*</span>
+              </label>
+              <input
+                id="email"
+                type="email"
+                class="form-control"
+                [class.is-invalid]="email?.invalid && email?.touched"
+                [class.is-valid]="email?.valid && email?.touched"
+                formControlName="email"
+                placeholder="john@example.com"
+              />
+              @if (email?.touched && email?.errors) {
+                <div class="invalid-feedback">
+                  @if (email?.errors?.['required']) {
+                    Email is required.
+                  } @else if (email?.errors?.['email']) {
+                    Please enter a valid email address.
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Phone -->
+            <div class="mb-3">
+              <label for="telefono" class="form-label fw-semibold">
+                Phone Number <span class="text-danger">*</span>
+              </label>
+              <input
+                id="telefono"
+                type="tel"
+                class="form-control"
+                [class.is-invalid]="telefono?.invalid && telefono?.touched"
+                [class.is-valid]="telefono?.valid && telefono?.touched"
+                formControlName="telefono"
+                placeholder="5551234567"
+                maxlength="10"
+              />
+              @if (telefono?.touched && telefono?.errors) {
+                <div class="invalid-feedback">
+                  @if (telefono?.errors?.['required']) {
+                    Phone number is required.
+                  } @else if (telefono?.errors?.['pattern']) {
+                    Phone must be exactly 10 digits (numbers only).
+                  }
+                </div>
+              }
+              <div class="form-text">Enter 10 digits, no spaces or dashes.</div>
+            </div>
+
+            <!-- Message -->
+            <div class="mb-4">
+              <label for="mensaje" class="form-label fw-semibold">
+                Message <span class="text-danger">*</span>
+              </label>
+              <textarea
+                id="mensaje"
+                class="form-control"
+                [class.is-invalid]="mensaje?.invalid && mensaje?.touched"
+                [class.is-valid]="mensaje?.valid && mensaje?.touched"
+                formControlName="mensaje"
+                rows="5"
+                placeholder="Write your message here..."
+              ></textarea>
+              @if (mensaje?.touched && mensaje?.errors) {
+                <div class="invalid-feedback">
+                  @if (mensaje?.errors?.['required']) {
+                    Message is required.
+                  } @else if (mensaje?.errors?.['minlength']) {
+                    Message must be at least 10 characters.
+                  } @else if (mensaje?.errors?.['maxlength']) {
+                    Message cannot exceed 500 characters.
+                  } @else if (mensaje?.errors?.['tieneHtml'] || mensaje?.errors?.['tieneScript']) {
+                    HTML tags are not allowed in the message.
+                  }
+                </div>
+              }
+              <div class="form-text text-end">
+                {{ mensaje?.value?.length || 0 }} / 500
+              </div>
+            </div>
+
+            <!-- Submit button -->
+            <button
+              type="submit"
+              class="btn btn-primary w-100 py-2"
+              [disabled]="formulario.invalid || enviando"
+            >
+              @if (enviando) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Sending...
+              } @else {
+                Send Message
+              }
+            </button>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
