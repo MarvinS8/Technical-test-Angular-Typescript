@@ -1,14 +1,13 @@
-import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
-import { GoogleMap, MapMarker } from '@angular/google-maps';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CountriesService } from '../../services/countries.service';
 import { Country } from '../../models/country.model';
 
 @Component({
   selector: 'app-country-detail',
   standalone: true,
-  imports: [RouterLink, GoogleMap, MapMarker],
+  imports: [RouterLink],
   templateUrl: './country-detail.component.html',
   styleUrl: './country-detail.component.css'
 })
@@ -17,29 +16,13 @@ export class CountryDetailComponent implements OnInit {
   cargando: boolean = true;
   error: string = '';
 
-  // Solo renderizamos el mapa en el browser, no en el servidor
-  esBrowser: boolean;
-
-  // Configuración del mapa
-  center: google.maps.LatLngLiteral = { lat: 20, lng: 0 };
-  zoom = 4;
-  markerPosition: google.maps.LatLngLiteral = { lat: 20, lng: 0 };
-  mapOptions: google.maps.MapOptions = {
-    mapTypeId: 'roadmap',
-    zoomControl: true,
-    scrollwheel: true,
-    disableDoubleClickZoom: false,
-  };
-
-  private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
+  private sanitizer = inject(DomSanitizer);
 
   constructor(
     private route: ActivatedRoute,
-    private countriesService: CountriesService,
-    private cdr: ChangeDetectorRef
-  ) {
-    this.esBrowser = isPlatformBrowser(this.platformId);
-  }
+    private countriesService: CountriesService
+  ) {}
 
   ngOnInit(): void {
     const code = this.route.snapshot.paramMap.get('code');
@@ -56,14 +39,6 @@ export class CountryDetailComponent implements OnInit {
       next: (data) => {
         this.pais = data[0];
         this.cargando = false;
-
-        // Actualizar las coordenadas del mapa con los datos del país
-        if (this.pais?.latlng && this.pais.latlng.length >= 2) {
-          const lat = this.pais.latlng[0];
-          const lng = this.pais.latlng[1];
-          this.center = { lat, lng };
-          this.markerPosition = { lat, lng };
-        }
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -73,6 +48,16 @@ export class CountryDetailComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  get mapUrl(): SafeResourceUrl {
+    if (!this.pais?.latlng || this.pais.latlng.length < 2) {
+      return this.sanitizer.bypassSecurityTrustResourceUrl('about:blank');
+    }
+    const lat = this.pais.latlng[0];
+    const lng = this.pais.latlng[1];
+    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 20},${lat - 15},${lng + 20},${lat + 15}&layer=mapnik&marker=${lat},${lng}`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   getCurrencies(): string {
