@@ -1,0 +1,47 @@
+<!-- Hero Section -->
+<div class="hero-section text-white text-center py-5">
+  <div class="container py-4">
+    <h1 class="display-4 fw-bold mb-3">Explore the World</h1>
+    <p class="lead mb-4">
+      Discover information about countries, capitals, currencies and more using real data from around the globe.
+    </p>
+    <a routerLink="/countries" class="btn btn-primary btn-lg px-5">
+      View Countries &nbsp; &rarr;
+    </a>
+  </div>
+</div>
+
+<!-- Features Section -->
+<div class="container my-5">
+  <h2 class="text-center mb-4 fw-semibold">What you can do</h2>
+  <div class="row g-4">
+    @for (feature of features; track feature.title) {
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body text-center p-4">
+            <div class="feature-icon mb-3">{{ feature.icon }}</div>
+            <h5 class="card-title fw-bold">{{ feature.title }}</h5>
+            <p class="card-text text-muted">{{ feature.description }}</p>
+            <a [routerLink]="feature.link" class="btn btn-outline-primary btn-sm mt-2">
+              Explore
+            </a>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Stats Section -->
+<div class="bg-dark text-white py-5 mt-4">
+  <div class="container">
+    <div class="row text-center">
+      @for (stat of stats; track stat.label) {
+        <div class="col-md-4 mb-3 mb-md-0">
+          <h2 class="fw-bold text-primary">{{ stat.value }}</h2>
+          <p class="mb-0 text-light">{{ stat.label }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>
