@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CountriesService } from '../../services/countries.service';
@@ -21,7 +21,7 @@ export class CountriesComponent implements OnInit {
   paginaActual: number = 1;
   itemsPorPagina: number = 15;
 
-  constructor(private countriesService: CountriesService) {}
+  constructor(private countriesService: CountriesService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.cargarPaises();
@@ -38,11 +38,13 @@ export class CountriesComponent implements OnInit {
           a.name.common.localeCompare(b.name.common)
         );
         this.cargando = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al cargar países:', err);
         this.error = 'Could not load countries. Please try again later.';
         this.cargando = false;
+        this.cdr.detectChanges();
       }
     });
   }

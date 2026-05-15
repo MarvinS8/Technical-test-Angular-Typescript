@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { GoogleMap, MapMarker } from '@angular/google-maps';
@@ -35,7 +35,8 @@ export class CountryDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private countriesService: CountriesService
+    private countriesService: CountriesService,
+    private cdr: ChangeDetectorRef
   ) {
     this.esBrowser = isPlatformBrowser(this.platformId);
   }
@@ -63,11 +64,13 @@ export class CountryDetailComponent implements OnInit {
           this.center = { lat, lng };
           this.markerPosition = { lat, lng };
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al cargar el país:', err);
         this.error = 'Could not load country data. Please go back and try again.';
         this.cargando = false;
+        this.cdr.detectChanges();
       }
     });
   }
