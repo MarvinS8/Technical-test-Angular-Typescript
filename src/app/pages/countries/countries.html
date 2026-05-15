@@ -1,0 +1,145 @@
+<div class="container py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Countries</h2>
+      @if (!cargando && !error) {
+        <p class="text-muted mb-0">{{ paisesFiltrados.length }} countries found</p>
+      }
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="mb-4">
+    <div class="input-group" style="max-width: 400px;">
+      <span class="input-group-text bg-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11"/>
+        </svg>
+      </span>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search by name, region or capital..."
+        [(ngModel)]="busqueda"
+        (ngModelChange)="onBusquedaCambio()"
+      />
+      @if (busqueda) {
+        <button class="btn btn-outline-secondary" type="button" (click)="busqueda = ''; onBusquedaCambio()">
+          &times;
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="text-muted mt-3">Loading countries...</p>
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (error) {
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+      <span class="me-2">&#9888;</span>
+      <div>{{ error }}</div>
+    </div>
+    <div class="text-center mt-3">
+      <button class="btn btn-primary" (click)="cargarPaises()">Try again</button>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!cargando && !error) {
+    @if (paisesPaginados.length > 0) {
+      <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover align-middle mb-0 bg-white">
+          <thead class="table-dark">
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">Name</th>
+              <th scope="col">Capital</th>
+              <th scope="col">Region</th>
+              <th scope="col">Population</th>
+              <th scope="col">Currency</th>
+              <th scope="col" class="text-center">Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (pais of paisesPaginados; track pais.cca2) {
+              <tr>
+                <td>
+                  <img
+                    [src]="pais.flags.png"
+                    [alt]="pais.flags.alt || pais.name.common"
+                    class="flag-img"
+                  />
+                </td>
+                <td class="fw-semibold">{{ pais.name.common }}</td>
+                <td class="text-muted">
+                  {{ pais.capital && pais.capital.length > 0 ? pais.capital[0] : '-' }}
+                </td>
+                <td>
+                  <span class="badge bg-secondary">{{ pais.region }}</span>
+                </td>
+                <td class="text-muted">{{ formatPopulation(pais.population) }}</td>
+                <td class="text-muted">{{ getCurrencies(pais) }}</td>
+                <td class="text-center">
+                  <a
+                    [routerLink]="['/countries', pais.cca2]"
+                    class="btn btn-sm btn-outline-primary"
+                  >
+                    View
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPaginas > 1) {
+        <nav class="mt-4" aria-label="Countries pagination">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" [class.disabled]="paginaActual === 1">
+              <button class="page-link" (click)="irAPagina(paginaActual - 1)">
+                &laquo; Prev
+              </button>
+            </li>
+            @for (pagina of paginas; track pagina) {
+              <li class="page-item" [class.active]="pagina === paginaActual">
+                <button class="page-link" (click)="irAPagina(pagina)">{{ pagina }}</button>
+              </li>
+            }
+            <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+              <button class="page-link" (click)="irAPagina(paginaActual + 1)">
+                Next &raquo;
+              </button>
+            </li>
+          </ul>
+        </nav>
+        <p class="text-center text-muted small">
+          Page {{ paginaActual }} of {{ totalPaginas }}
+        </p>
+      }
+
+    } @else {
+      <!-- Empty state -->
+      <div class="text-center py-5">
+        <div class="empty-state-icon mb-3">🔍</div>
+        <h5 class="text-muted">No countries found</h5>
+        <p class="text-muted">Try a different search term.</p>
+        <button class="btn btn-outline-primary" (click)="busqueda = ''; onBusquedaCambio()">
+          Clear search
+        </button>
+      </div>
+    }
+  }
+
+</div>
