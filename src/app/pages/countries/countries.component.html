@@ -80,11 +80,17 @@
                 <td>
                   <img
                     [src]="pais.flags.png"
-                    [alt]="pais.flags.alt || pais.name.common"
+                    [alt]="pais.name.common"
                     class="flag-img"
+                    (error)="$any($event.target).style.display='none'"
                   />
                 </td>
-                <td class="fw-semibold">{{ pais.name.common }}</td>
+                <td>
+                  <a
+                    [routerLink]="['/countries', pais.cca2]"
+                    class="fw-semibold text-decoration-none link-dark link-offset-1 link-underline-opacity-75-hover"
+                  >{{ pais.name.common }}</a>
+                </td>
                 <td class="text-muted">
                   {{ pais.capital && pais.capital.length > 0 ? pais.capital[0] : '-' }}
                 </td>
